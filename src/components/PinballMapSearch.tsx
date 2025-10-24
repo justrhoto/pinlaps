@@ -69,6 +69,9 @@ export function PinballMapSearch({ onImport, onBack }: PinballMapSearchProps) {
     setSearchMode("location");
     setLoadingLocations(true);
     const data = await pinballMapAPI.searchLocations(region.name);
+    data.sort((a, b) => {
+      return b.num_machines - a.num_machines;
+    });
     setLocations(data);
     setLoadingLocations(false);
   };
