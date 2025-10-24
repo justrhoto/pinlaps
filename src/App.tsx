@@ -120,7 +120,7 @@ export default function App() {
       location.location_machine_xrefs
         ?.map((xref) => ({
           id: crypto.randomUUID(),
-          name: xref.machine?.name || "Unknown Machine",
+          name: xref.name || "Unknown Machine",
         }))
         .filter((machine) => machine.name !== "Unknown Machine") || [];
 

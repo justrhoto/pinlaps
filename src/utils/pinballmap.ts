@@ -13,12 +13,9 @@ export interface PinballMapLocation {
   num_machines: number;
   location_machine_xrefs?: Array<{
     id: number;
-    machine: {
-      id: number;
-      name: string;
-      manufacturer: string;
-      year: number;
-    };
+    name: string;
+    manufacturer: string;
+    year: number;
   }>;
 }
 
@@ -122,7 +119,6 @@ export const pinballMapAPI = {
 
         if (machinesResponse.ok) {
           const machinesData = await machinesResponse.json();
-          console.log(machinesData);
           // Merge machine details into location data
           return {
             ...locationData,
