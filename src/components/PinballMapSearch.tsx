@@ -110,6 +110,12 @@ export function PinballMapSearch({ onImport, onBack }: PinballMapSearchProps) {
       )
     : regions;
 
+  const filteredLocations = locationQuery.trim()
+    ? locations.filter((l) =>
+        l.name.toLowerCase().includes(locationQuery.toLowerCase())
+      )
+    : locations;
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -285,14 +291,14 @@ export function PinballMapSearch({ onImport, onBack }: PinballMapSearchProps) {
                 Array.from({ length: 5 }).map((_, i) => (
                   <Skeleton key={i} className="h-32 w-full" />
                 ))
-              ) : locations.length === 0 ? (
+              ) : filteredLocations.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   {locationQuery.trim()
                     ? "No locations found"
                     : "Search for locations"}
                 </div>
               ) : (
-                locations.map((location) => (
+                filteredLocations.map((location) => (
                   <Card
                     key={location.id}
                     className="hover:bg-accent transition-colors"
