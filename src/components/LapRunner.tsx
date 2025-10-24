@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Arcade, Score, MachineStats } from "../types";
+import { Arcade, Score, MachineStats, Machine } from "../types";
 import { Button } from "./ui/button";
 import {
   Card,
@@ -13,6 +13,16 @@ import { Label } from "./ui/label";
 import { Progress } from "./ui/progress";
 import { Badge } from "./ui/badge";
 import { ArrowLeft, ArrowRight, Check, Trophy } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectScrollDownButton,
+  SelectScrollUpButton,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 
 interface LapRunnerProps {
   arcade: Arcade;
@@ -27,6 +37,7 @@ export function LapRunner({
   onComplete,
   onBack,
 }: LapRunnerProps) {
+  const [selectedMachine, setSelectedMachine] = useState<Machine | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [scores, setScores] = useState<Map<string, number>>(new Map());
   const [currentScore, setCurrentScore] = useState("");
@@ -92,80 +103,166 @@ export function LapRunner({
         <Progress value={progress} />
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{currentMachine.name}</CardTitle>
-          <CardDescription>
-            {machineStats ? (
-              <div className="space-y-1">
-                <div>Goal Score: {goalScore.toLocaleString()} (median)</div>
-                <div className="text-xs">
-                  Best: {machineStats.best.toLocaleString()} · Avg:{" "}
-                  {Math.round(machineStats.average).toLocaleString()} ·
-                  {machineStats.lapCount}{" "}
-                  {machineStats.lapCount === 1 ? "lap" : "laps"}
+      {!!selectedMachine && (
+        <Card>
+          <CardHeader>
+            <CardTitle>{currentMachine.name}</CardTitle>
+            <CardDescription>
+              {machineStats ? (
+                <div className="space-y-1">
+                  <div>Goal Score: {goalScore.toLocaleString()} (median)</div>
+                  <div className="text-xs">
+                    Best: {machineStats.best.toLocaleString()} · Avg:{" "}
+                    {Math.round(machineStats.average).toLocaleString()} ·
+                    {machineStats.lapCount}{" "}
+                    {machineStats.lapCount === 1 ? "lap" : "laps"}
+                  </div>
                 </div>
+              ) : (
+                "First time playing this machine!"
+              )}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="score">Your Score</Label>
+              <div className="relative">
+                <Input
+                  id="score"
+                  type="number"
+                  value={currentScore}
+                  onChange={(e) => setCurrentScore(e.target.value)}
+                  placeholder="0"
+                  className="pr-10"
+                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleNext();
+                    }
+                  }}
+                />
+                {beatGoal && (
+                  <Trophy className="absolute top-1/2 right-3 h-5 w-5 -translate-y-1/2 text-yellow-500" />
+                )}
               </div>
-            ) : (
-              "First time playing this machine!"
-            )}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="score">Your Score</Label>
-            <div className="relative">
-              <Input
-                id="score"
-                type="number"
-                value={currentScore}
-                onChange={(e) => setCurrentScore(e.target.value)}
-                placeholder="0"
-                className="pr-10"
-                autoFocus
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    handleNext();
-                  }
-                }}
-              />
-              {beatGoal && (
-                <Trophy className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-yellow-500" />
+              {beatGoal && goalScore > 0 && (
+                <p className="text-green-600">
+                  Beat the goal by {(enteredScore - goalScore).toLocaleString()}
+                  !
+                </p>
               )}
             </div>
-            {beatGoal && goalScore > 0 && (
-              <p className="text-green-600">
-                Beat the goal by {(enteredScore - goalScore).toLocaleString()}!
-              </p>
-            )}
-          </div>
 
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              onClick={handlePrevious}
-              disabled={currentIndex === 0}
-              className="flex-1"
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Previous
-            </Button>
-            <Button onClick={handleNext} className="flex-1">
-              {isLastMachine ? (
-                <>
-                  <Check className="mr-2 h-4 w-4" />
-                  Complete Lap
-                </>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={handlePrevious}
+                disabled={currentIndex === 0}
+                className="flex-1"
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Previous
+              </Button>
+              <Button onClick={handleNext} className="flex-1">
+                {isLastMachine ? (
+                  <>
+                    <Check className="mr-2 h-4 w-4" />
+                    Complete Lap
+                  </>
+                ) : (
+                  <>
+                    Next
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </>
+                )}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {!selectedMachine && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Select a Machine</CardTitle>
+            {/* <CardDescription>
+              {machineStats ? (
+                <div className="space-y-1">
+                  <div>Goal Score: {goalScore.toLocaleString()} (median)</div>
+                  <div className="text-xs">
+                    Best: {machineStats.best.toLocaleString()} · Avg:{" "}
+                    {Math.round(machineStats.average).toLocaleString()} ·
+                    {machineStats.lapCount}{" "}
+                    {machineStats.lapCount === 1 ? "lap" : "laps"}
+                  </div>
+                </div>
               ) : (
-                <>
-                  Next
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </>
+                "First time playing this machine!"
               )}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+            </CardDescription> */}
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="machine">Pinball Machine</Label>
+              <div className="relative">
+                <Select>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a machine..." />
+                  </SelectTrigger>
+                  <SelectContent
+                    className="bg-background"
+                    position="item-aligned"
+                  >
+                    <SelectGroup>
+                      {arcade.machines.map((machine) => (
+                        <SelectItem
+                          className="px-2 py-1"
+                          key={machine.id}
+                          value={machine.id}
+                          onClick={() => setSelectedMachine(machine)}
+                        >
+                          {machine.name}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
+              {beatGoal && goalScore > 0 && (
+                <p className="text-green-600">
+                  Beat the goal by {(enteredScore - goalScore).toLocaleString()}
+                  !
+                </p>
+              )}
+            </div>
+
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={handlePrevious}
+                disabled={currentIndex === 0}
+                className="flex-1"
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Previous
+              </Button>
+              <Button onClick={handleNext} className="flex-1">
+                {isLastMachine ? (
+                  <>
+                    <Check className="mr-2 h-4 w-4" />
+                    Complete Lap
+                  </>
+                ) : (
+                  <>
+                    Next
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </>
+                )}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>
@@ -181,13 +278,13 @@ export function LapRunner({
               return (
                 <div
                   key={machine.id}
-                  className={`flex items-center justify-between p-2 rounded ${
+                  className={`flex items-center justify-between rounded p-2 ${
                     isCurrent ? "bg-primary/10" : ""
                   }`}
                 >
                   <span
                     className={
-                      isCompleted ? "line-through text-muted-foreground" : ""
+                      isCompleted ? "text-muted-foreground line-through" : ""
                     }
                   >
                     {machine.name}
