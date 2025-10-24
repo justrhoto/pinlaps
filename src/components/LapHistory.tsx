@@ -1,10 +1,23 @@
-import { Lap, MachineStats } from '../types';
-import { Button } from './ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { Badge } from './ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
-import { ArrowLeft, Trophy, TrendingUp } from 'lucide-react';
+import { Lap, MachineStats } from "../types";
+import { Button } from "./ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "./ui/card";
+import { Badge } from "./ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "./ui/table";
+import { ArrowLeft, Trophy, TrendingUp } from "lucide-react";
 
 interface LapHistoryProps {
   arcadeName: string;
@@ -13,19 +26,24 @@ interface LapHistoryProps {
   onBack: () => void;
 }
 
-export function LapHistory({ arcadeName, laps, stats, onBack }: LapHistoryProps) {
-  const sortedLaps = [...laps].sort((a, b) => 
-    new Date(b.date).getTime() - new Date(a.date).getTime()
+export function LapHistory({
+  arcadeName,
+  laps,
+  stats,
+  onBack,
+}: LapHistoryProps) {
+  const sortedLaps = [...laps].sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
     });
   };
 
@@ -47,7 +65,7 @@ export function LapHistory({ arcadeName, laps, stats, onBack }: LapHistoryProps)
       <div>
         <h1>{arcadeName}</h1>
         <p className="text-muted-foreground">
-          {laps.length} {laps.length === 1 ? 'lap' : 'laps'} completed
+          {laps.length} {laps.length === 1 ? "lap" : "laps"} completed
         </p>
       </div>
 
@@ -70,8 +88,10 @@ export function LapHistory({ arcadeName, laps, stats, onBack }: LapHistoryProps)
           ) : (
             sortedLaps.map((lap, lapIndex) => {
               const totalScore = getTotalScore(lap);
-              const goalsBeaten = lap.scores.filter(score => {
-                const machineStat = stats.find(s => s.machineId === score.machineId);
+              const goalsBeaten = lap.scores.filter((score) => {
+                const machineStat = stats.find(
+                  (s) => s.machineId === score.machineId
+                );
                 return machineStat && score.score >= machineStat.median;
               }).length;
 
@@ -88,11 +108,13 @@ export function LapHistory({ arcadeName, laps, stats, onBack }: LapHistoryProps)
                         </CardDescription>
                       </div>
                       <div className="text-right">
-                        <div className="font-mono">{totalScore.toLocaleString()}</div>
+                        <div className="font-mono">
+                          {totalScore.toLocaleString()}
+                        </div>
                         {goalsBeaten > 0 && (
                           <Badge variant="secondary" className="mt-1">
                             <Trophy className="mr-1 h-3 w-3" />
-                            {goalsBeaten} {goalsBeaten === 1 ? 'goal' : 'goals'}
+                            {goalsBeaten} {goalsBeaten === 1 ? "goal" : "goals"}
                           </Badge>
                         )}
                       </div>
@@ -108,8 +130,10 @@ export function LapHistory({ arcadeName, laps, stats, onBack }: LapHistoryProps)
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {lap.scores.map(score => {
-                          const machineStat = stats.find(s => s.machineId === score.machineId);
+                        {lap.scores.map((score) => {
+                          const machineStat = stats.find(
+                            (s) => s.machineId === score.machineId
+                          );
                           const goal = machineStat?.median || 0;
                           const beatGoal = goal > 0 && score.score >= goal;
 
@@ -123,7 +147,7 @@ export function LapHistory({ arcadeName, laps, stats, onBack }: LapHistoryProps)
                                 )}
                               </TableCell>
                               <TableCell className="text-right text-muted-foreground">
-                                {goal > 0 ? goal.toLocaleString() : '-'}
+                                {goal > 0 ? goal.toLocaleString() : "-"}
                               </TableCell>
                             </TableRow>
                           );
@@ -149,17 +173,20 @@ export function LapHistory({ arcadeName, laps, stats, onBack }: LapHistoryProps)
             </Card>
           ) : (
             <div className="grid gap-4 md:grid-cols-2">
-              {sortedStats.map(stat => (
+              {sortedStats.map((stat) => (
                 <Card key={stat.machineId}>
                   <CardHeader>
                     <CardTitle>{stat.machineName}</CardTitle>
                     <CardDescription>
-                      {stat.lapCount} {stat.lapCount === 1 ? 'lap' : 'laps'} played
+                      {stat.lapCount} {stat.lapCount === 1 ? "lap" : "laps"}{" "}
+                      played
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Goal (Median)</span>
+                      <span className="text-muted-foreground">
+                        Goal (Median)
+                      </span>
                       <span className="font-mono">
                         <TrendingUp className="inline mr-1 h-4 w-4" />
                         {stat.median.toLocaleString()}

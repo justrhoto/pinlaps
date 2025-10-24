@@ -1,11 +1,27 @@
-import { useState } from 'react';
-import { Arcade, Machine } from '../types';
-import { Button } from './ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/alert-dialog';
+import { useState } from "react";
+import { Arcade, Machine } from "../types";
+import { Button } from "./ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "./ui/card";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { ArrowLeft, Plus, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "./ui/alert-dialog";
 
 interface ArcadeManagerProps {
   arcade: Arcade | null;
@@ -14,10 +30,15 @@ interface ArcadeManagerProps {
   onBack: () => void;
 }
 
-export function ArcadeManager({ arcade, onSave, onDelete, onBack }: ArcadeManagerProps) {
-  const [name, setName] = useState(arcade?.name || '');
+export function ArcadeManager({
+  arcade,
+  onSave,
+  onDelete,
+  onBack,
+}: ArcadeManagerProps) {
+  const [name, setName] = useState(arcade?.name || "");
   const [machines, setMachines] = useState<Machine[]>(arcade?.machines || []);
-  const [newMachineName, setNewMachineName] = useState('');
+  const [newMachineName, setNewMachineName] = useState("");
 
   const handleAddMachine = () => {
     if (!newMachineName.trim()) return;
@@ -28,11 +49,11 @@ export function ArcadeManager({ arcade, onSave, onDelete, onBack }: ArcadeManage
     };
 
     setMachines([...machines, machine]);
-    setNewMachineName('');
+    setNewMachineName("");
   };
 
   const handleRemoveMachine = (machineId: string) => {
-    setMachines(machines.filter(m => m.id !== machineId));
+    setMachines(machines.filter((m) => m.id !== machineId));
   };
 
   const handleSave = () => {
@@ -72,12 +93,16 @@ export function ArcadeManager({ arcade, onSave, onDelete, onBack }: ArcadeManage
               <AlertDialogHeader>
                 <AlertDialogTitle>Delete Arcade</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Are you sure you want to delete this arcade? This will also delete all lap history for this arcade. This action cannot be undone.
+                  Are you sure you want to delete this arcade? This will also
+                  delete all lap history for this arcade. This action cannot be
+                  undone.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+                <AlertDialogAction onClick={handleDelete}>
+                  Delete
+                </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
@@ -86,7 +111,7 @@ export function ArcadeManager({ arcade, onSave, onDelete, onBack }: ArcadeManage
 
       <Card>
         <CardHeader>
-          <CardTitle>{arcade ? 'Edit Arcade' : 'Create Arcade'}</CardTitle>
+          <CardTitle>{arcade ? "Edit Arcade" : "Create Arcade"}</CardTitle>
           <CardDescription>
             Add or edit arcade details and machines
           </CardDescription>
@@ -113,12 +138,15 @@ export function ArcadeManager({ arcade, onSave, onDelete, onBack }: ArcadeManage
                 onChange={(e) => setNewMachineName(e.target.value)}
                 placeholder="Machine name"
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
+                  if (e.key === "Enter") {
                     handleAddMachine();
                   }
                 }}
               />
-              <Button onClick={handleAddMachine} disabled={!newMachineName.trim()}>
+              <Button
+                onClick={handleAddMachine}
+                disabled={!newMachineName.trim()}
+              >
                 <Plus className="h-4 w-4" />
               </Button>
             </div>

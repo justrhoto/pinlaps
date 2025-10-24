@@ -1,14 +1,30 @@
-import { useState, useEffect } from 'react';
-import { pinballMapAPI, PinballMapLocation, PinballMapRegion } from '../utils/pinballmap';
-import { Button } from './ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { Badge } from './ui/badge';
-import { Skeleton } from './ui/skeleton';
-import { ArrowLeft, Search, MapPin, Gamepad2, ChevronRight } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { ScrollArea } from './ui/scroll-area';
+import { useState, useEffect } from "react";
+import {
+  pinballMapAPI,
+  PinballMapLocation,
+  PinballMapRegion,
+} from "../utils/pinballmap";
+import { Button } from "./ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "./ui/card";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { Badge } from "./ui/badge";
+import { Skeleton } from "./ui/skeleton";
+import {
+  ArrowLeft,
+  Search,
+  MapPin,
+  Gamepad2,
+  ChevronRight,
+} from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { ScrollArea } from "./ui/scroll-area";
 
 interface PinballMapSearchProps {
   onImport: (location: PinballMapLocation, regionName: string) => void;
@@ -16,15 +32,19 @@ interface PinballMapSearchProps {
 }
 
 export function PinballMapSearch({ onImport, onBack }: PinballMapSearchProps) {
-  const [searchMode, setSearchMode] = useState<'region' | 'location'>('region');
-  const [regionQuery, setRegionQuery] = useState('');
-  const [locationQuery, setLocationQuery] = useState('');
+  const [searchMode, setSearchMode] = useState<"region" | "location">("region");
+  const [regionQuery, setRegionQuery] = useState("");
+  const [locationQuery, setLocationQuery] = useState("");
   const [regions, setRegions] = useState<PinballMapRegion[]>([]);
-  const [selectedRegion, setSelectedRegion] = useState<PinballMapRegion | null>(null);
+  const [selectedRegion, setSelectedRegion] = useState<PinballMapRegion | null>(
+    null
+  );
   const [locations, setLocations] = useState<PinballMapLocation[]>([]);
   const [loadingRegions, setLoadingRegions] = useState(true);
   const [loadingLocations, setLoadingLocations] = useState(false);
-  const [importingLocation, setImportingLocation] = useState<number | null>(null);
+  const [importingLocation, setImportingLocation] = useState<number | null>(
+    null
+  );
 
   useEffect(() => {
     loadRegions();
@@ -32,7 +52,7 @@ export function PinballMapSearch({ onImport, onBack }: PinballMapSearchProps) {
 
   const loadRegions = async () => {
     setLoadingRegions(true);
-    const data = await pinballMapAPI.searchRegions('');
+    const data = await pinballMapAPI.searchRegions("");
     setRegions(data);
     setLoadingRegions(false);
   };
@@ -46,7 +66,7 @@ export function PinballMapSearch({ onImport, onBack }: PinballMapSearchProps) {
 
   const handleSelectRegion = async (region: PinballMapRegion) => {
     setSelectedRegion(region);
-    setSearchMode('location');
+    setSearchMode("location");
     setLoadingLocations(true);
     const data = await pinballMapAPI.searchLocations(region.name);
     setLocations(data);
@@ -56,14 +76,17 @@ export function PinballMapSearch({ onImport, onBack }: PinballMapSearchProps) {
   const handleLocationSearch = async () => {
     if (!selectedRegion) return;
     setLoadingLocations(true);
-    const data = await pinballMapAPI.searchLocations(selectedRegion.name, locationQuery);
+    const data = await pinballMapAPI.searchLocations(
+      selectedRegion.name,
+      locationQuery
+    );
     setLocations(data);
     setLoadingLocations(false);
   };
 
   const handleImportLocation = async (location: PinballMapLocation) => {
     if (!selectedRegion) return;
-    
+
     setImportingLocation(location.id);
     const detailedLocation = await pinballMapAPI.getLocationWithMachines(
       selectedRegion.name,
@@ -77,9 +100,10 @@ export function PinballMapSearch({ onImport, onBack }: PinballMapSearchProps) {
   };
 
   const filteredRegions = regionQuery.trim()
-    ? regions.filter(r => 
-        r.name.toLowerCase().includes(regionQuery.toLowerCase()) ||
-        r.full_name.toLowerCase().includes(regionQuery.toLowerCase())
+    ? regions.filter(
+        (r) =>
+          r.name.toLowerCase().includes(regionQuery.toLowerCase()) ||
+          r.full_name.toLowerCase().includes(regionQuery.toLowerCase())
       )
     : regions;
 
@@ -99,11 +123,18 @@ export function PinballMapSearch({ onImport, onBack }: PinballMapSearchProps) {
         </p>
       </div>
 
-      <Tabs value={searchMode} onValueChange={(v) => setSearchMode(v as 'region' | 'location')}>
+      <Tabs
+        value={searchMode}
+        onValueChange={(v: "region" | "location") => setSearchMode(v)}
+      >
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="region">
             1. Select Region
-            {selectedRegion && <Badge className="ml-2" variant="secondary">✓</Badge>}
+            {selectedRegion && (
+              <Badge className="ml-2" variant="secondary">
+                ✓
+              </Badge>
+            )}
           </TabsTrigger>
           <TabsTrigger value="location" disabled={!selectedRegion}>
             2. Select Location
@@ -120,9 +151,11 @@ export function PinballMapSearch({ onImport, onBack }: PinballMapSearchProps) {
                       <MapPin className="h-4 w-4" />
                       <span>{selectedRegion.full_name}</span>
                     </div>
-                    <p className="text-muted-foreground mt-1">Selected region</p>
+                    <p className="text-muted-foreground mt-1">
+                      Selected region
+                    </p>
                   </div>
-                  <Button onClick={() => setSearchMode('location')}>
+                  <Button onClick={() => setSearchMode("location")}>
                     Continue
                     <ChevronRight className="ml-2 h-4 w-4" />
                   </Button>
@@ -140,7 +173,7 @@ export function PinballMapSearch({ onImport, onBack }: PinballMapSearchProps) {
                 onChange={(e) => setRegionQuery(e.target.value)}
                 placeholder="Search by city, state, or country..."
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
+                  if (e.key === "Enter") {
                     handleRegionSearch();
                   }
                 }}
@@ -162,18 +195,22 @@ export function PinballMapSearch({ onImport, onBack }: PinballMapSearchProps) {
                   No regions found
                 </div>
               ) : (
-                filteredRegions.map(region => (
+                filteredRegions.map((region) => (
                   <Card
                     key={region.id}
                     className={`cursor-pointer hover:bg-accent transition-colors ${
-                      selectedRegion?.id === region.id ? 'border-primary bg-primary/5' : ''
+                      selectedRegion?.id === region.id
+                        ? "border-primary bg-primary/5"
+                        : ""
                     }`}
                     onClick={() => handleSelectRegion(region)}
                   >
                     <CardHeader className="p-4">
                       <div className="flex items-start justify-between">
                         <div>
-                          <CardTitle className="text-base">{region.full_name}</CardTitle>
+                          <CardTitle className="text-base">
+                            {region.full_name}
+                          </CardTitle>
                           <CardDescription className="mt-1">
                             <MapPin className="inline h-3 w-3 mr-1" />
                             {region.name}
@@ -204,7 +241,7 @@ export function PinballMapSearch({ onImport, onBack }: PinballMapSearchProps) {
                     variant="outline"
                     size="sm"
                     onClick={() => {
-                      setSearchMode('region');
+                      setSearchMode("region");
                       setSelectedRegion(null);
                       setLocations([]);
                     }}
@@ -225,12 +262,15 @@ export function PinballMapSearch({ onImport, onBack }: PinballMapSearchProps) {
                 onChange={(e) => setLocationQuery(e.target.value)}
                 placeholder="Search arcade name..."
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
+                  if (e.key === "Enter") {
                     handleLocationSearch();
                   }
                 }}
               />
-              <Button onClick={handleLocationSearch} disabled={loadingLocations}>
+              <Button
+                onClick={handleLocationSearch}
+                disabled={loadingLocations}
+              >
                 <Search className="h-4 w-4" />
               </Button>
             </div>
@@ -244,15 +284,22 @@ export function PinballMapSearch({ onImport, onBack }: PinballMapSearchProps) {
                 ))
               ) : locations.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
-                  {locationQuery.trim() ? 'No locations found' : 'Search for locations'}
+                  {locationQuery.trim()
+                    ? "No locations found"
+                    : "Search for locations"}
                 </div>
               ) : (
-                locations.map(location => (
-                  <Card key={location.id} className="hover:bg-accent transition-colors">
+                locations.map((location) => (
+                  <Card
+                    key={location.id}
+                    className="hover:bg-accent transition-colors"
+                  >
                     <CardHeader className="pb-3">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <CardTitle className="text-base">{location.name}</CardTitle>
+                          <CardTitle className="text-base">
+                            {location.name}
+                          </CardTitle>
                           <CardDescription className="mt-1">
                             {location.street && (
                               <>
@@ -269,13 +316,19 @@ export function PinballMapSearch({ onImport, onBack }: PinballMapSearchProps) {
                       <div className="flex items-center justify-between">
                         <Badge variant="secondary">
                           <Gamepad2 className="mr-1 h-3 w-3" />
-                          {location.num_machines || 0} {location.num_machines === 1 ? 'machine' : 'machines'}
+                          {location.num_machines || 0}{" "}
+                          {location.num_machines === 1 ? "machine" : "machines"}
                         </Badge>
                         <Button
                           onClick={() => handleImportLocation(location)}
-                          disabled={importingLocation === location.id || location.num_machines === 0}
+                          disabled={
+                            importingLocation === location.id ||
+                            location.num_machines === 0
+                          }
                         >
-                          {importingLocation === location.id ? 'Importing...' : 'Import'}
+                          {importingLocation === location.id
+                            ? "Importing..."
+                            : "Import"}
                         </Button>
                       </div>
                     </CardContent>

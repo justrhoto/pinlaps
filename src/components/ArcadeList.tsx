@@ -1,7 +1,13 @@
-import { Arcade } from '../types';
-import { Button } from './ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { Plus, Play, Settings, Download } from 'lucide-react';
+import { Arcade } from "../types";
+import { Button } from "./ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "./ui/card";
+import { Plus, Play, Settings, Download } from "lucide-react";
 
 interface ArcadeListProps {
   arcades: Arcade[];
@@ -10,7 +16,12 @@ interface ArcadeListProps {
   onImportFromPinballMap: () => void;
 }
 
-export function ArcadeList({ arcades, onSelectArcade, onManageArcade, onImportFromPinballMap }: ArcadeListProps) {
+export function ArcadeList({
+  arcades,
+  onSelectArcade,
+  onManageArcade,
+  onImportFromPinballMap,
+}: ArcadeListProps) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -53,7 +64,7 @@ export function ArcadeList({ arcades, onSelectArcade, onManageArcade, onImportFr
         </Card>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {arcades.map(arcade => (
+          {arcades.map((arcade) => (
             <Card key={arcade.id} className="flex flex-col">
               <CardHeader>
                 <CardTitle>{arcade.name}</CardTitle>
@@ -64,7 +75,8 @@ export function ArcadeList({ arcades, onSelectArcade, onManageArcade, onImportFr
                       <br />
                     </>
                   )}
-                  {arcade.machines.length} {arcade.machines.length === 1 ? 'machine' : 'machines'}
+                  {arcade.machines.length}{" "}
+                  {arcade.machines.length === 1 ? "machine" : "machines"}
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex gap-2 mt-auto">

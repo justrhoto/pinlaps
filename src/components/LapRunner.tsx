@@ -1,12 +1,18 @@
-import { useState } from 'react';
-import { Arcade, Score, MachineStats } from '../types';
-import { Button } from './ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { Progress } from './ui/progress';
-import { Badge } from './ui/badge';
-import { ArrowLeft, ArrowRight, Check, Trophy } from 'lucide-react';
+import { useState } from "react";
+import { Arcade, Score, MachineStats } from "../types";
+import { Button } from "./ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "./ui/card";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { Progress } from "./ui/progress";
+import { Badge } from "./ui/badge";
+import { ArrowLeft, ArrowRight, Check, Trophy } from "lucide-react";
 
 interface LapRunnerProps {
   arcade: Arcade;
@@ -15,16 +21,21 @@ interface LapRunnerProps {
   onBack: () => void;
 }
 
-export function LapRunner({ arcade, stats, onComplete, onBack }: LapRunnerProps) {
+export function LapRunner({
+  arcade,
+  stats,
+  onComplete,
+  onBack,
+}: LapRunnerProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [scores, setScores] = useState<Map<string, number>>(new Map());
-  const [currentScore, setCurrentScore] = useState('');
+  const [currentScore, setCurrentScore] = useState("");
 
   const currentMachine = arcade.machines[currentIndex];
   const progress = ((currentIndex + 1) / arcade.machines.length) * 100;
   const isLastMachine = currentIndex === arcade.machines.length - 1;
 
-  const machineStats = stats.find(s => s.machineId === currentMachine.id);
+  const machineStats = stats.find((s) => s.machineId === currentMachine.id);
   const goalScore = machineStats?.median || 0;
 
   const handleNext = () => {
@@ -33,8 +44,8 @@ export function LapRunner({ arcade, stats, onComplete, onBack }: LapRunnerProps)
 
     if (isLastMachine) {
       const finalScores: Score[] = [];
-      
-      arcade.machines.forEach(machine => {
+
+      arcade.machines.forEach((machine) => {
         finalScores.push({
           machineId: machine.id,
           machineName: machine.name,
@@ -46,7 +57,7 @@ export function LapRunner({ arcade, stats, onComplete, onBack }: LapRunnerProps)
     } else {
       setCurrentIndex(currentIndex + 1);
       const nextMachine = arcade.machines[currentIndex + 1];
-      setCurrentScore(scores.get(nextMachine.id)?.toString() || '');
+      setCurrentScore(scores.get(nextMachine.id)?.toString() || "");
     }
   };
 
@@ -54,7 +65,7 @@ export function LapRunner({ arcade, stats, onComplete, onBack }: LapRunnerProps)
     if (currentIndex > 0) {
       setCurrentIndex(currentIndex - 1);
       const prevMachine = arcade.machines[currentIndex - 1];
-      setCurrentScore(scores.get(prevMachine.id)?.toString() || '');
+      setCurrentScore(scores.get(prevMachine.id)?.toString() || "");
     }
   };
 
@@ -68,9 +79,7 @@ export function LapRunner({ arcade, stats, onComplete, onBack }: LapRunnerProps)
           <ArrowLeft className="mr-2 h-4 w-4" />
           Cancel Lap
         </Button>
-        <Badge variant="outline">
-          {arcade.name}
-        </Badge>
+        <Badge variant="outline">{arcade.name}</Badge>
       </div>
 
       <div className="space-y-2">
@@ -78,9 +87,7 @@ export function LapRunner({ arcade, stats, onComplete, onBack }: LapRunnerProps)
           <span className="text-muted-foreground">
             Machine {currentIndex + 1} of {arcade.machines.length}
           </span>
-          <span className="text-muted-foreground">
-            {Math.round(progress)}%
-          </span>
+          <span className="text-muted-foreground">{Math.round(progress)}%</span>
         </div>
         <Progress value={progress} />
       </div>
@@ -93,13 +100,14 @@ export function LapRunner({ arcade, stats, onComplete, onBack }: LapRunnerProps)
               <div className="space-y-1">
                 <div>Goal Score: {goalScore.toLocaleString()} (median)</div>
                 <div className="text-xs">
-                  Best: {machineStats.best.toLocaleString()} · 
-                  Avg: {Math.round(machineStats.average).toLocaleString()} · 
-                  {machineStats.lapCount} {machineStats.lapCount === 1 ? 'lap' : 'laps'}
+                  Best: {machineStats.best.toLocaleString()} · Avg:{" "}
+                  {Math.round(machineStats.average).toLocaleString()} ·
+                  {machineStats.lapCount}{" "}
+                  {machineStats.lapCount === 1 ? "lap" : "laps"}
                 </div>
               </div>
             ) : (
-              'First time playing this machine!'
+              "First time playing this machine!"
             )}
           </CardDescription>
         </CardHeader>
@@ -116,7 +124,7 @@ export function LapRunner({ arcade, stats, onComplete, onBack }: LapRunnerProps)
                 className="pr-10"
                 autoFocus
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
+                  if (e.key === "Enter") {
                     handleNext();
                   }
                 }}
@@ -142,10 +150,7 @@ export function LapRunner({ arcade, stats, onComplete, onBack }: LapRunnerProps)
               <ArrowLeft className="mr-2 h-4 w-4" />
               Previous
             </Button>
-            <Button
-              onClick={handleNext}
-              className="flex-1"
-            >
+            <Button onClick={handleNext} className="flex-1">
               {isLastMachine ? (
                 <>
                   <Check className="mr-2 h-4 w-4" />
@@ -177,16 +182,18 @@ export function LapRunner({ arcade, stats, onComplete, onBack }: LapRunnerProps)
                 <div
                   key={machine.id}
                   className={`flex items-center justify-between p-2 rounded ${
-                    isCurrent ? 'bg-primary/10' : ''
+                    isCurrent ? "bg-primary/10" : ""
                   }`}
                 >
-                  <span className={isCompleted ? 'line-through text-muted-foreground' : ''}>
+                  <span
+                    className={
+                      isCompleted ? "line-through text-muted-foreground" : ""
+                    }
+                  >
                     {machine.name}
                   </span>
                   {isCompleted && (
-                    <Badge variant="secondary">
-                      {score.toLocaleString()}
-                    </Badge>
+                    <Badge variant="secondary">{score.toLocaleString()}</Badge>
                   )}
                 </div>
               );

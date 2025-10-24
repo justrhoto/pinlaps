@@ -32,15 +32,10 @@ export interface PinballMapRegion {
 }
 
 export const pinballMapAPI = {
-  async searchRegions(
-    query: string,
-  ): Promise<PinballMapRegion[]> {
+  async searchRegions(query: string): Promise<PinballMapRegion[]> {
     try {
-      const response = await fetch(
-        `${PINBALL_MAP_API}/regions.json`,
-      );
-      if (!response.ok)
-        throw new Error("Failed to fetch regions");
+      const response = await fetch(`${PINBALL_MAP_API}/regions.json`);
+      if (!response.ok) throw new Error("Failed to fetch regions");
 
       const data = await response.json();
       const regions: PinballMapRegion[] = data.regions || [];
@@ -51,7 +46,7 @@ export const pinballMapAPI = {
       return regions.filter(
         (region) =>
           region.name.toLowerCase().includes(lowerQuery) ||
-          region.full_name.toLowerCase().includes(lowerQuery),
+          region.full_name.toLowerCase().includes(lowerQuery)
       );
     } catch (error) {
       console.error("Error fetching regions:", error);
@@ -61,11 +56,11 @@ export const pinballMapAPI = {
 
   async searchLocations(
     regionName: string,
-    query?: string,
+    query?: string
   ): Promise<PinballMapLocation[]> {
     try {
       let url = `${PINBALL_MAP_API}/region/${encodeURIComponent(
-        regionName,
+        regionName
       )}/locations.json`;
 
       if (query?.trim()) {
@@ -73,8 +68,7 @@ export const pinballMapAPI = {
       }
 
       const response = await fetch(url);
-      if (!response.ok)
-        throw new Error("Failed to fetch locations");
+      if (!response.ok) throw new Error("Failed to fetch locations");
 
       const data = await response.json();
       return data.locations || [];
@@ -86,17 +80,16 @@ export const pinballMapAPI = {
 
   async getLocationDetails(
     regionName: string,
-    locationId: number,
+    locationId: number
   ): Promise<PinballMapLocation | null> {
     try {
       const response = await fetch(
         `${PINBALL_MAP_API}/region/${encodeURIComponent(
-          regionName,
-        )}/locations/${locationId}.json`,
+          regionName
+        )}/locations/${locationId}.json`
       );
 
-      if (!response.ok)
-        throw new Error("Failed to fetch location details");
+      if (!response.ok) throw new Error("Failed to fetch location details");
 
       const data = await response.json();
       return data;
@@ -108,12 +101,12 @@ export const pinballMapAPI = {
 
   async getLocationWithMachines(
     regionName: string,
-    locationId: number,
+    locationId: number
   ): Promise<PinballMapLocation | null> {
     try {
       // First get the location details
       const locationResponse = await fetch(
-        `${PINBALL_MAP_API}/locations/${locationId}.json`,
+        `${PINBALL_MAP_API}/locations/${locationId}.json`
       );
 
       if (!locationResponse.ok)
@@ -124,7 +117,7 @@ export const pinballMapAPI = {
       // Then get the machine details separately
       try {
         const machinesResponse = await fetch(
-          `${PINBALL_MAP_API}/locations/${locationId}/machine_details.json`,
+          `${PINBALL_MAP_API}/locations/${locationId}/machine_details.json`
         );
 
         if (machinesResponse.ok) {
@@ -139,7 +132,7 @@ export const pinballMapAPI = {
       } catch (machineError) {
         console.warn(
           "Machine details not available, using basic location data:",
-          machineError,
+          machineError
         );
       }
 
@@ -147,8 +140,7 @@ export const pinballMapAPI = {
       // Otherwise return empty array to prevent undefined errors
       return {
         ...locationData,
-        location_machine_xrefs:
-          locationData.location_machine_xrefs,
+        location_machine_xrefs: locationData.location_machine_xrefs,
       };
     } catch (error) {
       console.error("Error fetching location:", error);
