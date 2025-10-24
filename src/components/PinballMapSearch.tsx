@@ -125,7 +125,7 @@ export function PinballMapSearch({ onImport, onBack }: PinballMapSearchProps) {
 
       <Tabs
         value={searchMode}
-        onValueChange={(v: "region" | "location") => setSearchMode(v)}
+        onValueChange={(v: string) => setSearchMode(v as "region" | "location")}
       >
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="region">
