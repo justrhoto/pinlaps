@@ -261,17 +261,12 @@ export function LapRunner({
                 className="flex-1"
                 disabled={!machineSelector}
               >
-                {isLastMachine ? (
-                  <>
-                    <Check className="mr-2 h-4 w-4" />
-                    Complete Lap
-                  </>
-                ) : (
+                {
                   <>
                     Select Machine
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </>
-                )}
+                }
               </Button>
             </div>
           </CardContent>
