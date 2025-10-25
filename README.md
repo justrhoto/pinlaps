@@ -1,11 +1,11 @@
+# PinLaps
 
-  # Pinball Arcade Score Tracker
+This is a web app for a fun personal challenge to run a lap around an arcade, playing each pin once. It tracks scores and encourages you to score better than your median performance.
 
-  This is a code bundle for Pinball Arcade Score Tracker. The original project is available at https://www.figma.com/design/vaRg8x8FdKllI1kYILdLRp/Pinball-Arcade-Score-Tracker.
+## Running the code
 
-  ## Running the code
+`npm i`: Install the dependencies.
 
-  Run `npm i` to install the dependencies.
+`npm run dev`: Start the development server.
 
-  Run `npm run dev` to start the development server.
-  
+`npm run build`: Build the project for production.
