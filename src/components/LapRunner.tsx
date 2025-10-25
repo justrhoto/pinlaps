@@ -49,8 +49,7 @@ export function LapRunner({
     selectedMachine ||
     arcade.machines.find((m) => m.id === currentMachineId) ||
     null;
-  const progress =
-    ((scores.size + (currentMachine ? 1 : 0)) / arcade.machines.length) * 100;
+  const progress = (scores.size / arcade.machines.length) * 100;
   const isLastMachine = currentIndex === arcade.machines.length - 1;
 
   const machineStats = currentMachine
@@ -77,7 +76,9 @@ export function LapRunner({
       onComplete(finalScores);
     } else {
       setSelectedMachine(null);
-      setCurrentScore("");
+      setCurrentScore(
+        scores.get(scoredMachineIds[currentIndex + 1])?.toString() || "",
+      );
       setCurrentIndex(currentIndex + 1);
     }
   };
@@ -283,10 +284,12 @@ export function LapRunner({
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            {arcade.machines.map((machine, idx) => {
+            {scoredMachineIds.toReversed().map((machineId, idx) => {
+              const machine = arcade.machines.find((m) => m.id === machineId);
+              if (machine == null) return null;
               const score = scores.get(machine.id);
               const isCompleted = score !== undefined;
-              const isCurrent = idx === currentIndex;
+              const isCurrent = scores.size - 1 - idx === currentIndex;
 
               return (
                 <div
@@ -295,11 +298,7 @@ export function LapRunner({
                     isCurrent ? "bg-primary/10" : ""
                   }`}
                 >
-                  <span
-                    className={
-                      isCompleted ? "text-muted-foreground line-through" : ""
-                    }
-                  >
+                  <span className={isCompleted ? "text-foreground" : ""}>
                     {machine.name}
                   </span>
                   {isCompleted && (
