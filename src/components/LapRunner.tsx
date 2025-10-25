@@ -37,22 +37,32 @@ export function LapRunner({
   onComplete,
   onBack,
 }: LapRunnerProps) {
+  const [machineSelector, setMachineSelector] = useState<Machine | null>(null);
   const [selectedMachine, setSelectedMachine] = useState<Machine | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [scores, setScores] = useState<Map<string, number>>(new Map());
   const [currentScore, setCurrentScore] = useState("");
 
-  const currentMachine = arcade.machines[currentIndex];
-  const progress = ((currentIndex + 1) / arcade.machines.length) * 100;
+  const scoredMachineIds = Array.from(scores.keys());
+  const currentMachineId = scoredMachineIds[currentIndex];
+  const currentMachine =
+    selectedMachine ||
+    arcade.machines.find((m) => m.id === currentMachineId) ||
+    null;
+  const progress =
+    ((scores.size + (currentMachine ? 1 : 0)) / arcade.machines.length) * 100;
   const isLastMachine = currentIndex === arcade.machines.length - 1;
 
-  const machineStats = stats.find((s) => s.machineId === currentMachine.id);
+  const machineStats = currentMachine
+    ? stats.find((s) => s.machineId === currentMachine.id)
+    : null;
   const goalScore = machineStats?.median || 0;
 
   const handleNext = () => {
     const score = parseInt(currentScore) || 0;
-    setScores(new Map(scores.set(currentMachine.id, score)));
-
+    const newScores = new Map(scores);
+    if (currentMachine) newScores.set(currentMachine.id, score);
+    setScores(newScores);
     if (isLastMachine) {
       const finalScores: Score[] = [];
 
@@ -60,24 +70,37 @@ export function LapRunner({
         finalScores.push({
           machineId: machine.id,
           machineName: machine.name,
-          score: scores.get(machine.id) || 0,
+          score: newScores.get(machine.id) || 0,
         });
       });
 
       onComplete(finalScores);
     } else {
+      setSelectedMachine(null);
+      setCurrentScore("");
       setCurrentIndex(currentIndex + 1);
-      const nextMachine = arcade.machines[currentIndex + 1];
-      setCurrentScore(scores.get(nextMachine.id)?.toString() || "");
     }
   };
 
   const handlePrevious = () => {
     if (currentIndex > 0) {
+      const prevMachine = arcade.machines.find(
+        (machine) => machine.id === scoredMachineIds[currentIndex - 1],
+      );
+      if (prevMachine == null) return;
+
       setCurrentIndex(currentIndex - 1);
-      const prevMachine = arcade.machines[currentIndex - 1];
+      setSelectedMachine(prevMachine);
       setCurrentScore(scores.get(prevMachine.id)?.toString() || "");
     }
+  };
+
+  const handleSelect = () => {
+    if (machineSelector == null) return;
+
+    setSelectedMachine(machineSelector);
+    setMachineSelector(null);
+    setCurrentScore(scores.get(machineSelector.id)?.toString() || "");
   };
 
   const enteredScore = parseInt(currentScore) || 0;
@@ -103,7 +126,7 @@ export function LapRunner({
         <Progress value={progress} />
       </div>
 
-      {!!selectedMachine && (
+      {currentMachine && (
         <Card>
           <CardHeader>
             <CardTitle>{currentMachine.name}</CardTitle>
@@ -181,31 +204,22 @@ export function LapRunner({
         </Card>
       )}
 
-      {!selectedMachine && (
+      {!currentMachine && (
         <Card>
           <CardHeader>
             <CardTitle>Select a Machine</CardTitle>
-            {/* <CardDescription>
-              {machineStats ? (
-                <div className="space-y-1">
-                  <div>Goal Score: {goalScore.toLocaleString()} (median)</div>
-                  <div className="text-xs">
-                    Best: {machineStats.best.toLocaleString()} · Avg:{" "}
-                    {Math.round(machineStats.average).toLocaleString()} ·
-                    {machineStats.lapCount}{" "}
-                    {machineStats.lapCount === 1 ? "lap" : "laps"}
-                  </div>
-                </div>
-              ) : (
-                "First time playing this machine!"
-              )}
-            </CardDescription> */}
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="machine">Pinball Machine</Label>
               <div className="relative">
-                <Select>
+                <Select
+                  onValueChange={(value) =>
+                    setMachineSelector(
+                      arcade.machines.find((m) => m.id === value) || null,
+                    )
+                  }
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select a machine..." />
                   </SelectTrigger>
@@ -214,26 +228,21 @@ export function LapRunner({
                     position="item-aligned"
                   >
                     <SelectGroup>
-                      {arcade.machines.map((machine) => (
-                        <SelectItem
-                          className="px-2 py-1"
-                          key={machine.id}
-                          value={machine.id}
-                          onClick={() => setSelectedMachine(machine)}
-                        >
-                          {machine.name}
-                        </SelectItem>
-                      ))}
+                      {arcade.machines
+                        .filter((machine) => !scores.has(machine.id))
+                        .map((machine) => (
+                          <SelectItem
+                            className="px-2 py-1"
+                            key={machine.id}
+                            value={machine.id}
+                          >
+                            {machine.name}
+                          </SelectItem>
+                        ))}
                     </SelectGroup>
                   </SelectContent>
                 </Select>
               </div>
-              {beatGoal && goalScore > 0 && (
-                <p className="text-green-600">
-                  Beat the goal by {(enteredScore - goalScore).toLocaleString()}
-                  !
-                </p>
-              )}
             </div>
 
             <div className="flex gap-2">
@@ -246,7 +255,11 @@ export function LapRunner({
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Previous
               </Button>
-              <Button onClick={handleNext} className="flex-1">
+              <Button
+                onClick={handleSelect}
+                className="flex-1"
+                disabled={!machineSelector}
+              >
                 {isLastMachine ? (
                   <>
                     <Check className="mr-2 h-4 w-4" />
@@ -254,7 +267,7 @@ export function LapRunner({
                   </>
                 ) : (
                   <>
-                    Next
+                    Select Machine
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </>
                 )}
