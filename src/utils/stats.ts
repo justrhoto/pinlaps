@@ -3,6 +3,8 @@ import { Lap, MachineStats } from "../types";
 export const calculateMedian = (numbers: number[]): number => {
   if (numbers.length === 0) return 0;
 
+  numbers = numbers.filter((score) => score > 0);
+  if (numbers.length === 0) return 0;
   const sorted = [...numbers].sort((a, b) => a - b);
   const mid = Math.floor(sorted.length / 2);
 
@@ -14,7 +16,7 @@ export const calculateMedian = (numbers: number[]): number => {
 
 export const calculateMachineStats = (
   arcadeId: string,
-  laps: Lap[]
+  laps: Lap[],
 ): MachineStats[] => {
   const arcadeLaps = laps.filter((lap) => lap.arcadeId === arcadeId);
 
@@ -28,6 +30,8 @@ export const calculateMachineStats = (
       if (!machineMap.has(score.machineId)) {
         machineMap.set(score.machineId, []);
         machineNames.set(score.machineId, score.machineName);
+      } else if (score.score === 0) {
+        return;
       }
       machineMap.get(score.machineId)!.push(score.score);
     });

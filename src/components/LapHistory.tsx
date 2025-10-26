@@ -33,7 +33,7 @@ export function LapHistory({
   onBack,
 }: LapHistoryProps) {
   const sortedLaps = [...laps].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
   );
 
   const formatDate = (dateString: string) => {
@@ -89,10 +89,7 @@ export function LapHistory({
             sortedLaps.map((lap, lapIndex) => {
               const totalScore = getTotalScore(lap);
               const goalsBeaten = lap.scores.filter((score) => {
-                const machineStat = stats.find(
-                  (s) => s.machineId === score.machineId
-                );
-                return machineStat && score.score >= machineStat.median;
+                return score.goal && score.score >= score.goal;
               }).length;
 
               return (
@@ -131,10 +128,7 @@ export function LapHistory({
                       </TableHeader>
                       <TableBody>
                         {lap.scores.map((score) => {
-                          const machineStat = stats.find(
-                            (s) => s.machineId === score.machineId
-                          );
-                          const goal = machineStat?.median || 0;
+                          const goal = score.goal ? score.goal : 0;
                           const beatGoal = goal > 0 && score.score >= goal;
 
                           return (
@@ -143,10 +137,10 @@ export function LapHistory({
                               <TableCell className="text-right font-mono">
                                 {score.score.toLocaleString()}
                                 {beatGoal && (
-                                  <Trophy className="inline ml-2 h-4 w-4 text-yellow-500" />
+                                  <Trophy className="ml-2 inline h-4 w-4 text-yellow-500" />
                                 )}
                               </TableCell>
-                              <TableCell className="text-right text-muted-foreground">
+                              <TableCell className="text-muted-foreground text-right">
                                 {goal > 0 ? goal.toLocaleString() : "-"}
                               </TableCell>
                             </TableRow>
@@ -188,14 +182,14 @@ export function LapHistory({
                         Goal (Median)
                       </span>
                       <span className="font-mono">
-                        <TrendingUp className="inline mr-1 h-4 w-4" />
+                        <TrendingUp className="mr-1 inline h-4 w-4" />
                         {stat.median.toLocaleString()}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-muted-foreground">Best</span>
                       <span className="font-mono">
-                        <Trophy className="inline mr-1 h-4 w-4 text-yellow-500" />
+                        <Trophy className="mr-1 inline h-4 w-4 text-yellow-500" />
                         {stat.best.toLocaleString()}
                       </span>
                     </div>

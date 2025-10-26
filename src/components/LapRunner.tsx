@@ -64,10 +64,15 @@ export function LapRunner({
       const finalScores: Score[] = [];
 
       arcade.machines.forEach((machine) => {
+        const machineStats = machine
+          ? stats.find((s) => s.machineId === machine.id)
+          : null;
+        const goalScore = machineStats?.median || 0;
         finalScores.push({
           machineId: machine.id,
           machineName: machine.name,
           score: newScores.get(machine.id) || 0,
+          goal: goalScore,
         });
       });
 
@@ -102,6 +107,8 @@ export function LapRunner({
     setCurrentScore(scores.get(machineSelector.id)?.toString() || "");
   };
 
+  const handleFinishLap = () => {};
+
   const enteredScore = parseInt(currentScore) || 0;
   const beatGoal = goalScore > 0 && enteredScore >= goalScore;
 
@@ -112,7 +119,13 @@ export function LapRunner({
           <ArrowLeft className="mr-2 h-4 w-4" />
           Cancel Lap
         </Button>
-        <Badge variant="outline">{arcade.name}</Badge>
+
+        {/* <div>
+          <Button variant="outline" onClick={handleFinishLap}>
+            <Check className="mr-2 h-4 w-4" />
+            Finish Lap
+          </Button>
+        </div> */}
       </div>
 
       <div className="space-y-2">
@@ -210,7 +223,7 @@ export function LapRunner({
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="machine">Pinball Machine</Label>
+              <Label htmlFor="machine">{arcade.name}</Label>
               <div className="relative">
                 <Select
                   onValueChange={(value) =>
