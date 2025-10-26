@@ -120,12 +120,12 @@ export function LapRunner({
           Cancel Lap
         </Button>
 
-        <div>
+        {/* <div>
           <Button variant="outline" onClick={handleFinishLap}>
             <Check className="mr-2 h-4 w-4" />
             Finish Lap
           </Button>
-        </div>
+        </div> */}
       </div>
 
       <div className="space-y-2">
