@@ -64,10 +64,15 @@ export function LapRunner({
       const finalScores: Score[] = [];
 
       arcade.machines.forEach((machine) => {
+        const machineStats = machine
+          ? stats.find((s) => s.machineId === machine.id)
+          : null;
+        const goalScore = machineStats?.median || 0;
         finalScores.push({
           machineId: machine.id,
           machineName: machine.name,
           score: newScores.get(machine.id) || 0,
+          goal: goalScore,
         });
       });
 

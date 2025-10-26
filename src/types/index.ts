@@ -16,6 +16,7 @@ export interface Score {
   machineId: string;
   machineName: string;
   score: number;
+  goal?: number;
 }
 
 export interface Lap {
