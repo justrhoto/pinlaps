@@ -61,22 +61,7 @@ export function LapRunner({
     if (currentMachine) newScores.set(currentMachine.id, score);
     setScores(newScores);
     if (isLastMachine) {
-      const finalScores: Score[] = [];
-
-      arcade.machines.forEach((machine) => {
-        const machineStats = machine
-          ? stats.find((s) => s.machineId === machine.id)
-          : null;
-        const goalScore = machineStats?.median || 0;
-        finalScores.push({
-          machineId: machine.id,
-          machineName: machine.name,
-          score: newScores.get(machine.id) || 0,
-          goal: goalScore,
-        });
-      });
-
-      onComplete(finalScores);
+      handleFinishLap();
     } else {
       setSelectedMachine(null);
       setCurrentScore(
@@ -107,7 +92,34 @@ export function LapRunner({
     setCurrentScore(scores.get(machineSelector.id)?.toString() || "");
   };
 
-  const handleFinishLap = () => {};
+  const handleFinishLap = () => {
+    const score = parseInt(currentScore) || 0;
+    const newScores = new Map(scores);
+    if (currentMachine) newScores.set(currentMachine.id, score);
+
+    const finalScores: Score[] = [];
+
+    arcade.machines.forEach((machine) => {
+      const machineStats = machine
+        ? stats.find((s) => s.machineId === machine.id)
+        : null;
+      const goalScore = machineStats?.median || 0;
+      const personalBest =
+        machineStats || score > 0
+          ? machineStats == undefined || score >= machineStats.best
+          : false;
+
+      finalScores.push({
+        machineId: machine.id,
+        machineName: machine.name,
+        score: newScores.get(machine.id) || 0,
+        goal: goalScore,
+        personalBest,
+      });
+    });
+
+    onComplete(finalScores);
+  };
 
   const enteredScore = parseInt(currentScore) || 0;
   const beatGoal = goalScore > 0 && enteredScore >= goalScore;
@@ -120,12 +132,12 @@ export function LapRunner({
           Cancel Lap
         </Button>
 
-        {/* <div>
+        <div>
           <Button variant="outline" onClick={handleFinishLap}>
             <Check className="mr-2 h-4 w-4" />
             Finish Lap
           </Button>
-        </div> */}
+        </div>
       </div>
 
       <div className="space-y-2">
