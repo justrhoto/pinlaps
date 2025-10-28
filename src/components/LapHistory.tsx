@@ -2,8 +2,10 @@ import { Lap, MachineStats } from "../types";
 import { Button } from "./ui/button";
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "./ui/card";
@@ -13,11 +15,17 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
 } from "./ui/table";
-import { ArrowLeft, Trophy, TrendingUp } from "lucide-react";
+import {
+  ArrowLeft,
+  Trophy,
+  TrendingUp,
+  ReceiptRussianRuble,
+} from "lucide-react";
 
 interface LapHistoryProps {
   arcadeName: string;
@@ -91,6 +99,9 @@ export function LapHistory({
               const goalsBeaten = lap.scores.filter((score) => {
                 return score.goal && score.score >= score.goal;
               }).length;
+              const machinesNotPlayed = lap.scores
+                .filter((score) => score.score === 0)
+                .map((score) => score.machineName);
 
               return (
                 <Card key={lap.id}>
@@ -128,6 +139,8 @@ export function LapHistory({
                       </TableHeader>
                       <TableBody>
                         {lap.scores.map((score) => {
+                          if (score.score == 0) return;
+
                           const goal = score.goal ? score.goal : 0;
                           const beatGoal = goal > 0 && score.score >= goal;
 
@@ -149,6 +162,13 @@ export function LapHistory({
                       </TableBody>
                     </Table>
                   </CardContent>
+                  {machinesNotPlayed.length > 0 && (
+                    <CardFooter>
+                      <CardAction>
+                        Machines not played: {machinesNotPlayed.join(", ")}
+                      </CardAction>
+                    </CardFooter>
+                  )}
                 </Card>
               );
             })

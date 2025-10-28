@@ -104,11 +104,17 @@ export function LapRunner({
         ? stats.find((s) => s.machineId === machine.id)
         : null;
       const goalScore = machineStats?.median || 0;
+      const personalBest =
+        machineStats || score > 0
+          ? machineStats == undefined || score >= machineStats.best
+          : false;
+
       finalScores.push({
         machineId: machine.id,
         machineName: machine.name,
         score: newScores.get(machine.id) || 0,
         goal: goalScore,
+        personalBest,
       });
     });
 

@@ -17,6 +17,7 @@ export interface Score {
   machineName: string;
   score: number;
   goal?: number;
+  personalBest?: boolean;
 }
 
 export interface Lap {
