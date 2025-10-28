@@ -15,17 +15,11 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
 } from "./ui/table";
-import {
-  ArrowLeft,
-  Trophy,
-  TrendingUp,
-  ReceiptRussianRuble,
-} from "lucide-react";
+import { ArrowLeft, Trophy, TrendingUp } from "lucide-react";
 
 interface LapHistoryProps {
   arcadeName: string;
