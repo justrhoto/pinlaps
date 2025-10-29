@@ -56,7 +56,7 @@ export function LapRunner({
   const goalScore = machineStats?.median || 0;
 
   const handleNext = () => {
-    const score = parseInt(currentScore) || 0;
+    const score = parseInt(currentScore.replace(/,/g, ""), 10) || 0;
     const newScores = new Map(scores);
     if (currentMachine) newScores.set(currentMachine.id, score);
     setScores(newScores);
@@ -93,7 +93,7 @@ export function LapRunner({
   };
 
   const handleFinishLap = () => {
-    const score = parseInt(currentScore) || 0;
+    const score = parseInt(currentScore.replace(/,/g, ""), 10) || 0;
     const newScores = new Map(scores);
     if (currentMachine) newScores.set(currentMachine.id, score);
 
@@ -121,7 +121,21 @@ export function LapRunner({
     onComplete(finalScores);
   };
 
-  const enteredScore = parseInt(currentScore) || 0;
+  const handleScoreChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value.replace(/[^0-9]/g, "");
+
+    if (rawValue.length > 16) {
+      return;
+    }
+
+    if (rawValue === "") {
+      setCurrentScore("");
+    } else {
+      setCurrentScore(parseInt(rawValue, 10).toLocaleString("en-US"));
+    }
+  };
+
+  const enteredScore = parseInt(currentScore.replace(/,/g, ""), 10) || 0;
   const beatGoal = goalScore > 0 && enteredScore >= goalScore;
 
   return (
@@ -176,9 +190,10 @@ export function LapRunner({
               <div className="relative">
                 <Input
                   id="score"
-                  type="number"
+                  type="text"
+                  inputMode="numeric"
                   value={currentScore}
-                  onChange={(e) => setCurrentScore(e.target.value)}
+                  onChange={handleScoreChange}
                   placeholder="0"
                   className="pr-10"
                   autoFocus
