@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Arcade, Score, MachineStats, Machine } from "../types";
+import { Arcade, Score, MachineStats, Machine, Lap } from "../types";
 import { Button } from "./ui/button";
 import {
   Card,
@@ -25,7 +25,7 @@ import {
 interface LapRunnerProps {
   arcade: Arcade;
   stats: MachineStats[];
-  onComplete: (scores: Score[]) => void;
+  onComplete: (lap: Lap) => void;
   onBack: () => void;
 }
 
@@ -118,7 +118,16 @@ export function LapRunner({
       });
     });
 
-    onComplete(finalScores);
+    const lap: Lap = {
+      id: crypto.randomUUID(),
+      arcadeId: arcade.id,
+      arcadeName: arcade.name,
+      date: new Date().toISOString(),
+      scores: finalScores,
+      completed: true,
+    };
+
+    onComplete(lap);
   };
 
   const handleScoreChange = (e: React.ChangeEvent<HTMLInputElement>) => {

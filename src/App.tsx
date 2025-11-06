@@ -67,22 +67,14 @@ export default function App() {
     setState({ view: "home", selectedArcade: null, editingArcade: null });
   };
 
-  const handleCompleteLap = (scores: Score[]) => {
+  const handleCompleteLap = (lap: Lap) => {
     if (!state.selectedArcade) return;
-
-    const lap: Lap = {
-      id: crypto.randomUUID(),
-      arcadeId: state.selectedArcade.id,
-      arcadeName: state.selectedArcade.name,
-      date: new Date().toISOString(),
-      scores,
-    };
 
     const newLaps = [...laps, lap];
     setLaps(newLaps);
     storage.saveLaps(newLaps);
 
-    const totalScore = scores.reduce((sum, s) => sum + s.score, 0);
+    const totalScore = lap.scores.reduce((sum, s) => sum + s.score, 0);
     toast.success(`Lap completed! Total score: ${totalScore.toLocaleString()}`);
 
     setState({
@@ -114,7 +106,7 @@ export default function App() {
 
   const handleImportLocation = (
     location: PinballMapLocation,
-    regionName: string
+    regionName: string,
   ) => {
     const machines: Machine[] =
       location.location_machine_xrefs
@@ -127,7 +119,7 @@ export default function App() {
     // If no machines were imported, show a warning
     if (machines.length === 0) {
       toast.error(
-        "No machines found for this location. The arcade was not imported."
+        "No machines found for this location. The arcade was not imported.",
       );
       return;
     }
@@ -167,8 +159,8 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto p-6 max-w-6xl">
+    <div className="bg-background min-h-screen">
+      <div className="container mx-auto max-w-6xl p-6">
         {state.view === "home" && (
           <div className="space-y-6">
             <ArcadeList
@@ -193,7 +185,7 @@ export default function App() {
 
                   <TabsContent value="all" className="space-y-2">
                     {laps.length === 0 ? (
-                      <div className="text-center py-8 text-muted-foreground">
+                      <div className="text-muted-foreground py-8 text-center">
                         No laps completed yet
                       </div>
                     ) : (
@@ -201,25 +193,25 @@ export default function App() {
                         .sort(
                           (a, b) =>
                             new Date(b.date).getTime() -
-                            new Date(a.date).getTime()
+                            new Date(a.date).getTime(),
                         )
                         .slice(0, 5)
                         .map((lap) => {
                           const arcade = arcades.find(
-                            (a) => a.id === lap.arcadeId
+                            (a) => a.id === lap.arcadeId,
                           );
                           if (!arcade) return null;
 
                           const totalScore = lap.scores.reduce(
                             (sum, s) => sum + s.score,
-                            0
+                            0,
                           );
                           const date = new Date(lap.date);
 
                           return (
                             <div
                               key={lap.id}
-                              className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent cursor-pointer"
+                              className="hover:bg-accent flex cursor-pointer items-center justify-between rounded-lg border p-4"
                               onClick={() => handleViewHistory(arcade)}
                             >
                               <div>
@@ -257,7 +249,7 @@ export default function App() {
                         className="space-y-2"
                       >
                         {arcadeLaps.length === 0 ? (
-                          <div className="text-center py-8 text-muted-foreground">
+                          <div className="text-muted-foreground py-8 text-center">
                             No laps completed for this arcade yet
                           </div>
                         ) : (
@@ -266,20 +258,20 @@ export default function App() {
                               .sort(
                                 (a, b) =>
                                   new Date(b.date).getTime() -
-                                  new Date(a.date).getTime()
+                                  new Date(a.date).getTime(),
                               )
                               .slice(0, 5)
                               .map((lap) => {
                                 const totalScore = lap.scores.reduce(
                                   (sum, s) => sum + s.score,
-                                  0
+                                  0,
                                 );
                                 const date = new Date(lap.date);
 
                                 return (
                                   <div
                                     key={lap.id}
-                                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent cursor-pointer"
+                                    className="hover:bg-accent flex cursor-pointer items-center justify-between rounded-lg border p-4"
                                     onClick={() => handleViewHistory(arcade)}
                                   >
                                     <div className="text-muted-foreground">

@@ -26,6 +26,7 @@ export interface Lap {
   arcadeName: string;
   date: string;
   scores: Score[];
+  completed: boolean;
 }
 
 export interface MachineStats {
