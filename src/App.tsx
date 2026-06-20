@@ -108,6 +108,11 @@ export default function App() {
     location: PinballMapLocation,
     regionName: string,
   ) => {
+    if (arcades.some((a) => a.pinballMapId === location.id)) {
+      toast.error(`${location.name} has already been imported`);
+      return;
+    }
+
     const machines: Machine[] =
       location.location_machine_xrefs
         ?.map((xref) => ({

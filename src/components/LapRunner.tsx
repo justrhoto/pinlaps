@@ -1,6 +1,11 @@
 import { useState } from "react";
 import type { Arcade, MachineStats, Machine, Lap } from "../types";
-import { createLap, formatScoreInput, parseScore } from "../utils/lap";
+import {
+  createLap,
+  formatScoreInput,
+  parseScore,
+  scoreToInput,
+} from "../utils/lap";
 import { Button } from "./ui/button";
 import {
   Card,
@@ -70,9 +75,7 @@ export function LapRunner({
       onComplete(createLap(arcade, newScores, stats));
     } else {
       setSelectedMachine(null);
-      setCurrentScore(
-        scores.get(scoredMachineIds[currentIndex + 1])?.toString() || "",
-      );
+      setCurrentScore(scoreToInput(scores.get(scoredMachineIds[currentIndex + 1])));
       setCurrentIndex(currentIndex + 1);
     }
   };
@@ -86,7 +89,7 @@ export function LapRunner({
 
       setCurrentIndex(currentIndex - 1);
       setSelectedMachine(prevMachine);
-      setCurrentScore(scores.get(prevMachine.id)?.toString() || "");
+      setCurrentScore(scoreToInput(scores.get(prevMachine.id)));
     }
   };
 
@@ -95,7 +98,7 @@ export function LapRunner({
 
     setSelectedMachine(machineSelector);
     setMachineSelector(null);
-    setCurrentScore(scores.get(machineSelector.id)?.toString() || "");
+    setCurrentScore(scoreToInput(scores.get(machineSelector.id)));
   };
 
   const handleFinishLap = () => {

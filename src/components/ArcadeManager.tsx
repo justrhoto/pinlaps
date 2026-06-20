@@ -60,6 +60,9 @@ export function ArcadeManager({
     if (!name.trim() || machines.length === 0) return;
 
     const arcadeData: Arcade = {
+      // Preserve imported metadata (address, pinballMapId, pinballMapRegion)
+      // when editing an existing arcade.
+      ...arcade,
       id: arcade?.id || crypto.randomUUID(),
       name: name.trim(),
       machines,

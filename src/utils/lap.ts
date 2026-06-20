@@ -20,6 +20,11 @@ export const formatScoreInput = (value: string): string | null => {
   return parseInt(digits, 10).toLocaleString("en-US");
 };
 
+/** Render a stored score as a thousands-separated input value (empty if unset). */
+export const scoreToInput = (value: number | undefined): string => {
+  return value === undefined ? "" : value.toLocaleString("en-US");
+};
+
 /**
  * A score is a personal best when it is a real (non-zero) score that meets or
  * beats the best of all previous laps. With no prior stats, any real score is a

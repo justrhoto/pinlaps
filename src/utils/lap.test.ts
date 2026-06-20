@@ -5,6 +5,7 @@ import {
   formatScoreInput,
   isPersonalBest,
   parseScore,
+  scoreToInput,
 } from "./lap";
 import type { Arcade, Machine, MachineStats } from "../types";
 
@@ -48,6 +49,17 @@ describe("formatScoreInput", () => {
   it("returns null past the 16-digit cap so callers keep the old value", () => {
     expect(formatScoreInput("1".repeat(16))).not.toBeNull();
     expect(formatScoreInput("1".repeat(17))).toBeNull();
+  });
+});
+
+describe("scoreToInput", () => {
+  it("returns an empty string for an unset score", () => {
+    expect(scoreToInput(undefined)).toBe("");
+  });
+
+  it("formats a stored score with thousands separators", () => {
+    expect(scoreToInput(1234567)).toBe("1,234,567");
+    expect(scoreToInput(0)).toBe("0");
   });
 });
 
