@@ -1,4 +1,4 @@
-import { Lap, MachineStats } from "../types";
+import type { Lap, MachineStats } from "../types";
 import { Button } from "./ui/button";
 import {
   Card,

@@ -1,4 +1,4 @@
-import { Lap, MachineStats } from "../types";
+import type { Lap, MachineStats } from "../types";
 
 export const calculateMedian = (numbers: number[]): number => {
   if (numbers.length === 0) return 0;
@@ -27,11 +27,12 @@ export const calculateMachineStats = (
 
   arcadeLaps.forEach((lap) => {
     lap.scores.forEach((score) => {
+      // A score of 0 means the machine was not played on this lap; never count it.
+      if (score.score <= 0) return;
+
       if (!machineMap.has(score.machineId)) {
         machineMap.set(score.machineId, []);
         machineNames.set(score.machineId, score.machineName);
-      } else if (score.score === 0) {
-        return;
       }
       machineMap.get(score.machineId)!.push(score.score);
     });

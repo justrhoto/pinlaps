@@ -97,7 +97,7 @@ export const pinballMapAPI = {
   },
 
   async getLocationWithMachines(
-    regionName: string,
+    _regionName: string,
     locationId: number
   ): Promise<PinballMapLocation | null> {
     try {

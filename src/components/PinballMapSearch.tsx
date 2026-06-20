@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import {
-  pinballMapAPI,
+import { pinballMapAPI } from "../utils/pinballmap";
+import type {
   PinballMapLocation,
   PinballMapRegion,
 } from "../utils/pinballmap";

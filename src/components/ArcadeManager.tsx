@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Arcade, Machine } from "../types";
+import type { Arcade, Machine } from "../types";
 import { Button } from "./ui/button";
 import {
   Card,

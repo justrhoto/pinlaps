@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Arcade, Score, MachineStats, Machine, Lap } from "../types";
+import type { Arcade, MachineStats, Machine, Lap } from "../types";
+import { createLap, formatScoreInput, parseScore } from "../utils/lap";
 import { Button } from "./ui/button";
 import {
   Card,
@@ -55,13 +56,18 @@ export function LapRunner({
     : null;
   const goalScore = machineStats?.median || 0;
 
-  const handleNext = () => {
-    const score = parseInt(currentScore.replace(/,/g, ""), 10) || 0;
+  // Returns a fresh scores map that includes the score currently being edited.
+  const scoresWithCurrent = () => {
     const newScores = new Map(scores);
-    if (currentMachine) newScores.set(currentMachine.id, score);
+    if (currentMachine) newScores.set(currentMachine.id, parseScore(currentScore));
+    return newScores;
+  };
+
+  const handleNext = () => {
+    const newScores = scoresWithCurrent();
     setScores(newScores);
     if (isLastMachine) {
-      handleFinishLap();
+      onComplete(createLap(arcade, newScores, stats));
     } else {
       setSelectedMachine(null);
       setCurrentScore(
@@ -93,58 +99,15 @@ export function LapRunner({
   };
 
   const handleFinishLap = () => {
-    const score = parseInt(currentScore.replace(/,/g, ""), 10) || 0;
-    const newScores = new Map(scores);
-    if (currentMachine) newScores.set(currentMachine.id, score);
-
-    const finalScores: Score[] = [];
-
-    arcade.machines.forEach((machine) => {
-      const machineStats = machine
-        ? stats.find((s) => s.machineId === machine.id)
-        : null;
-      const goalScore = machineStats?.median || 0;
-      const personalBest =
-        machineStats || score > 0
-          ? machineStats == undefined || score >= machineStats.best
-          : false;
-
-      finalScores.push({
-        machineId: machine.id,
-        machineName: machine.name,
-        score: newScores.get(machine.id) || 0,
-        goal: goalScore,
-        personalBest,
-      });
-    });
-
-    const lap: Lap = {
-      id: crypto.randomUUID(),
-      arcadeId: arcade.id,
-      arcadeName: arcade.name,
-      date: new Date().toISOString(),
-      scores: finalScores,
-      completed: true,
-    };
-
-    onComplete(lap);
+    onComplete(createLap(arcade, scoresWithCurrent(), stats));
   };
 
   const handleScoreChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const rawValue = e.target.value.replace(/[^0-9]/g, "");
-
-    if (rawValue.length > 16) {
-      return;
-    }
-
-    if (rawValue === "") {
-      setCurrentScore("");
-    } else {
-      setCurrentScore(parseInt(rawValue, 10).toLocaleString("en-US"));
-    }
+    const formatted = formatScoreInput(e.target.value);
+    if (formatted !== null) setCurrentScore(formatted);
   };
 
-  const enteredScore = parseInt(currentScore.replace(/,/g, ""), 10) || 0;
+  const enteredScore = parseScore(currentScore);
   const beatGoal = goalScore > 0 && enteredScore >= goalScore;
 
   return (

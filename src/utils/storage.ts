@@ -1,4 +1,4 @@
-import { Arcade, Lap } from "../types";
+import type { Arcade, Lap } from "../types";
 
 const ARCADES_KEY = "pinball_arcades";
 const LAPS_KEY = "pinball_laps";

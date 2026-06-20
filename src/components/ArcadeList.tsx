@@ -1,4 +1,4 @@
-import { Arcade } from "../types";
+import type { Arcade } from "../types";
 import { Button } from "./ui/button";
 import {
   Card,

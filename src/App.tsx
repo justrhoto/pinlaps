@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Arcade, Lap, Score, Machine } from "./types";
+import type { Arcade, Lap, Machine } from "./types";
 import { storage } from "./utils/storage";
 import { calculateMachineStats } from "./utils/stats";
 import { ArcadeList } from "./components/ArcadeList";
@@ -7,7 +7,7 @@ import { ArcadeManager } from "./components/ArcadeManager";
 import { LapRunner } from "./components/LapRunner";
 import { LapHistory } from "./components/LapHistory";
 import { PinballMapSearch } from "./components/PinballMapSearch";
-import { PinballMapLocation } from "./utils/pinballmap";
+import type { PinballMapLocation } from "./utils/pinballmap";
 import { Button } from "./components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/tabs";
 import { History } from "lucide-react";
