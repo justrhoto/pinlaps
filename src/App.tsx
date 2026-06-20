@@ -7,7 +7,9 @@ import { ArcadeManager } from "./components/ArcadeManager";
 import { LapRunner } from "./components/LapRunner";
 import { LapHistory } from "./components/LapHistory";
 import { PinballMapSearch } from "./components/PinballMapSearch";
+import { DataBackup } from "./components/DataBackup";
 import type { PinballMapLocation } from "./utils/pinballmap";
+import { mergeById, type BackupData } from "./utils/backup";
 import { Button } from "./components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/tabs";
 import { History } from "lucide-react";
@@ -153,6 +155,22 @@ export default function App() {
 
     toast.success(`Imported ${location.name} with ${machines.length} machines`);
     setState({ view: "home", selectedArcade: null, editingArcade: null });
+  };
+
+  const handleImportBackup = (data: BackupData) => {
+    const newArcades = mergeById(arcades, data.arcades);
+    const newLaps = mergeById(laps, data.laps);
+
+    setArcades(newArcades);
+    setLaps(newLaps);
+    storage.saveArcades(newArcades);
+    storage.saveLaps(newLaps);
+
+    const arcadeWord = data.arcades.length === 1 ? "arcade" : "arcades";
+    const lapWord = data.laps.length === 1 ? "lap" : "laps";
+    toast.success(
+      `Imported ${data.arcades.length} ${arcadeWord} and ${data.laps.length} ${lapWord}`,
+    );
   };
 
   const getArcadeLaps = (arcadeId: string) => {
@@ -314,6 +332,12 @@ export default function App() {
                 </Tabs>
               </div>
             )}
+
+            <DataBackup
+              arcades={arcades}
+              laps={laps}
+              onImport={handleImportBackup}
+            />
           </div>
         )}
 
