@@ -1,6 +1,7 @@
 import type { Arcade, Lap } from "../types";
+import { migrateToV2 } from "./migrate";
 
-export const BACKUP_VERSION = 1;
+export const BACKUP_VERSION = 2;
 
 export interface Backup {
   app: "pinlaps";
@@ -76,7 +77,9 @@ export const parseBackup = (json: string): BackupData => {
     throw new Error("Backup file contains invalid lap data.");
   }
 
-  return { arcades: obj.arcades, laps: obj.laps };
+  // Upgrade older (v1) backups so their ids match freshly-imported data; v2
+  // backups pass through unchanged (migration is idempotent).
+  return migrateToV2({ arcades: obj.arcades, laps: obj.laps });
 };
 
 /**

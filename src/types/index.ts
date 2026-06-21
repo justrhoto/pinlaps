@@ -1,9 +1,20 @@
-export interface Machine {
+/**
+ * Sync metadata carried by every syncable record. `updatedAt` drives
+ * last-write-wins merge; a non-null `deletedAt` is a tombstone (soft delete).
+ * Both are optional so pre-sync (schema v1) data and existing tests stay valid;
+ * the v2 migration stamps them.
+ */
+export interface SyncMeta {
+  updatedAt?: string;
+  deletedAt?: string;
+}
+
+export interface Machine extends SyncMeta {
   id: string;
   name: string;
 }
 
-export interface Arcade {
+export interface Arcade extends SyncMeta {
   id: string;
   name: string;
   machines: Machine[];
@@ -20,7 +31,9 @@ export interface Score {
   personalBest?: boolean;
 }
 
-export interface Lap {
+export interface Lap extends SyncMeta {
+  // Laps are append-only and immutable; `deletedAt` is only ever set when an
+  // arcade delete cascades to its laps.
   id: string;
   arcadeId: string;
   arcadeName: string;

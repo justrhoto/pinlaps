@@ -7,6 +7,7 @@ import { LapRunner } from "./components/LapRunner";
 import { LapHistory } from "./components/LapHistory";
 import { PinballMapSearch } from "./components/PinballMapSearch";
 import { DataBackup } from "./components/DataBackup";
+import { SyncStatus } from "./components/SyncStatus";
 import type { PinballMapLocation } from "./utils/pinballmap";
 import { Button } from "./components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/tabs";
@@ -91,7 +92,8 @@ export default function App() {
 
   return (
     <div className="bg-background min-h-screen">
-      <div className="container mx-auto max-w-6xl p-6">
+      <div className="container mx-auto max-w-6xl space-y-6 p-6">
+        <SyncStatus />
         {state.view === "home" && (
           <div className="space-y-6">
             <ArcadeList

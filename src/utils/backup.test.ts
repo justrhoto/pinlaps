@@ -33,18 +33,28 @@ describe("serializeBackup", () => {
 });
 
 describe("parseBackup", () => {
-  it("round-trips serialized data", () => {
+  it("round-trips serialized data (hand-created ids are preserved)", () => {
     const arcades = [arcade("a"), arcade("b")];
     const laps = [lap("l1", "a")];
     const result = parseBackup(serializeBackup(arcades, laps));
-    expect(result).toEqual({ arcades, laps });
+    // Migration stamps updatedAt but leaves non-imported ids/content intact.
+    expect(result.arcades.map((a) => a.id)).toEqual(["a", "b"]);
+    expect(result.laps.map((l) => l.id)).toEqual(["l1"]);
+    expect(result.laps[0].scores[0].machineId).toBe("a-m1");
   });
 
-  it("preserves optional imported metadata", () => {
+  it("upgrades v1 backups: imported ids become stable on import", () => {
     const arcades = [
-      arcade("a", { address: "1 Main St", pinballMapId: 42, pinballMapRegion: "portland" }),
+      arcade("legacy-uuid", {
+        address: "1 Main St",
+        pinballMapId: 42,
+        pinballMapRegion: "portland",
+        machines: [{ id: "rand", name: "Godzilla" }],
+      }),
     ];
     const result = parseBackup(serializeBackup(arcades, []));
+    expect(result.arcades[0].id).toBe("pm-42");
+    expect(result.arcades[0].machines[0].id).toBe("pm-42-godzilla");
     expect(result.arcades[0].pinballMapId).toBe(42);
     expect(result.arcades[0].address).toBe("1 Main St");
   });

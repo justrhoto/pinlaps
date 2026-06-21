@@ -2,3 +2,8 @@
 build/
 node_modules/
 *.tsbuildinfo
+
+# Local secrets / environment (Supabase URL + anon key live here)
+.env
+.env.local
+.env.*.local

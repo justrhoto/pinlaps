@@ -30,20 +30,47 @@ export interface PinballMapRegion {
   lon: string;
 }
 
+/** Lowercase, hyphenated slug of a machine name, used to build stable ids. */
+const slug = (value: string): string =>
+  value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+/**
+ * Deterministic arcade id derived from the stable Pinball Map location id, so
+ * the same location imported on two devices yields the same id (no duplicates
+ * on merge).
+ */
+export const stableArcadeId = (pinballMapId: number): string =>
+  `pm-${pinballMapId}`;
+
+/**
+ * Deterministic machine id, namespaced under its arcade. Derived from the
+ * arcade's Pinball Map id + the machine name — the only inputs available both
+ * to a fresh import AND to migrating old localStorage (which kept just
+ * {id, name}). This makes a migrated device and a freshly-imported device agree
+ * on ids. Trade-off: two machines with the same name at one location collapse
+ * to one id (rare; acceptable).
+ */
+export const stableMachineId = (pinballMapId: number, name: string): string =>
+  `pm-${pinballMapId}-${slug(name)}`;
+
 /**
  * Convert a Pinball Map location into an Arcade. Machines without a known name
- * are dropped; returns null when no usable machines remain.
+ * are dropped; returns null when no usable machines remain. Ids are derived
+ * deterministically from Pinball Map ids so imports are stable across devices.
  */
 export const locationToArcade = (
   location: PinballMapLocation,
   regionName: string,
 ): Arcade | null => {
   const machines: Machine[] = (location.location_machine_xrefs ?? [])
+    .filter((xref) => xref.name)
     .map((xref) => ({
-      id: crypto.randomUUID(),
-      name: xref.name || "Unknown Machine",
-    }))
-    .filter((machine) => machine.name !== "Unknown Machine");
+      id: stableMachineId(location.id, xref.name),
+      name: xref.name,
+    }));
 
   if (machines.length === 0) return null;
 
@@ -52,7 +79,7 @@ export const locationToArcade = (
     .join(", ");
 
   return {
-    id: crypto.randomUUID(),
+    id: stableArcadeId(location.id),
     name: location.name,
     machines,
     pinballMapId: location.id,
