@@ -1,6 +1,6 @@
 import { useRef } from "react";
-import type { Arcade, Lap } from "../types";
-import { parseBackup, serializeBackup, type BackupData } from "../utils/backup";
+import { parseBackup, serializeBackup } from "../utils/backup";
+import { useData } from "../store/dataContext";
 import { Button } from "./ui/button";
 import {
   Card,
@@ -12,13 +12,8 @@ import {
 import { Download, Upload } from "lucide-react";
 import { toast } from "sonner";
 
-interface DataBackupProps {
-  arcades: Arcade[];
-  laps: Lap[];
-  onImport: (data: BackupData) => void;
-}
-
-export function DataBackup({ arcades, laps, onImport }: DataBackupProps) {
+export function DataBackup() {
+  const { arcades, laps, importBackup } = useData();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const hasData = arcades.length > 0 || laps.length > 0;
 
@@ -39,7 +34,7 @@ export function DataBackup({ arcades, laps, onImport }: DataBackupProps) {
     if (!file) return;
 
     try {
-      onImport(parseBackup(await file.text()));
+      importBackup(parseBackup(await file.text()));
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Could not import backup",

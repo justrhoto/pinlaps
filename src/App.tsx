@@ -1,7 +1,6 @@
-import { useState, useEffect } from "react";
-import type { Arcade, Lap, Machine } from "./types";
-import { storage } from "./utils/storage";
-import { calculateMachineStats } from "./utils/stats";
+import { useState } from "react";
+import type { Arcade, Lap } from "./types";
+import { useData } from "./store/dataContext";
 import { ArcadeList } from "./components/ArcadeList";
 import { ArcadeManager } from "./components/ArcadeManager";
 import { LapRunner } from "./components/LapRunner";
@@ -9,12 +8,10 @@ import { LapHistory } from "./components/LapHistory";
 import { PinballMapSearch } from "./components/PinballMapSearch";
 import { DataBackup } from "./components/DataBackup";
 import type { PinballMapLocation } from "./utils/pinballmap";
-import { mergeById, type BackupData } from "./utils/backup";
 import { Button } from "./components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/tabs";
 import { History } from "lucide-react";
 import { Toaster } from "./components/ui/sonner";
-import { toast } from "sonner";
 
 type View = "home" | "manage" | "lap" | "history" | "import";
 
@@ -25,60 +22,36 @@ interface AppState {
 }
 
 export default function App() {
-  const [arcades, setArcades] = useState<Arcade[]>([]);
-  const [laps, setLaps] = useState<Lap[]>([]);
+  const {
+    arcades,
+    laps,
+    saveArcade,
+    deleteArcade,
+    addLap,
+    importLocation,
+    getArcadeLaps,
+    getArcadeStats,
+  } = useData();
   const [state, setState] = useState<AppState>({
     view: "home",
     selectedArcade: null,
     editingArcade: null,
   });
 
-  useEffect(() => {
-    setArcades(storage.getArcades());
-    setLaps(storage.getLaps());
-  }, []);
-
   const handleSaveArcade = (arcade: Arcade) => {
-    const existingIndex = arcades.findIndex((a) => a.id === arcade.id);
-    let newArcades: Arcade[];
-
-    if (existingIndex >= 0) {
-      newArcades = [...arcades];
-      newArcades[existingIndex] = arcade;
-      toast.success("Arcade updated successfully");
-    } else {
-      newArcades = [...arcades, arcade];
-      toast.success("Arcade created successfully");
-    }
-
-    setArcades(newArcades);
-    storage.saveArcades(newArcades);
+    saveArcade(arcade);
     setState({ view: "home", selectedArcade: null, editingArcade: null });
   };
 
   const handleDeleteArcade = (arcadeId: string) => {
-    const newArcades = arcades.filter((a) => a.id !== arcadeId);
-    const newLaps = laps.filter((l) => l.arcadeId !== arcadeId);
-
-    setArcades(newArcades);
-    setLaps(newLaps);
-    storage.saveArcades(newArcades);
-    storage.saveLaps(newLaps);
-
-    toast.success("Arcade deleted successfully");
+    deleteArcade(arcadeId);
     setState({ view: "home", selectedArcade: null, editingArcade: null });
   };
 
   const handleCompleteLap = (lap: Lap) => {
     if (!state.selectedArcade) return;
 
-    const newLaps = [...laps, lap];
-    setLaps(newLaps);
-    storage.saveLaps(newLaps);
-
-    const totalScore = lap.scores.reduce((sum, s) => sum + s.score, 0);
-    toast.success(`Lap completed! Total score: ${totalScore.toLocaleString()}`);
-
+    addLap(lap);
     setState({
       view: "history",
       selectedArcade: state.selectedArcade,
@@ -110,75 +83,10 @@ export default function App() {
     location: PinballMapLocation,
     regionName: string,
   ) => {
-    if (arcades.some((a) => a.pinballMapId === location.id)) {
-      toast.error(`${location.name} has already been imported`);
-      return;
+    const arcade = importLocation(location, regionName);
+    if (arcade) {
+      setState({ view: "home", selectedArcade: null, editingArcade: null });
     }
-
-    const machines: Machine[] =
-      location.location_machine_xrefs
-        ?.map((xref) => ({
-          id: crypto.randomUUID(),
-          name: xref.name || "Unknown Machine",
-        }))
-        .filter((machine) => machine.name !== "Unknown Machine") || [];
-
-    // If no machines were imported, show a warning
-    if (machines.length === 0) {
-      toast.error(
-        "No machines found for this location. The arcade was not imported.",
-      );
-      return;
-    }
-
-    const address = [
-      location.street,
-      location.city,
-      location.state,
-      location.zip,
-    ]
-      .filter(Boolean)
-      .join(", ");
-
-    const arcade: Arcade = {
-      id: crypto.randomUUID(),
-      name: location.name,
-      machines,
-      pinballMapId: location.id,
-      pinballMapRegion: regionName,
-      address,
-    };
-
-    const newArcades = [...arcades, arcade];
-    setArcades(newArcades);
-    storage.saveArcades(newArcades);
-
-    toast.success(`Imported ${location.name} with ${machines.length} machines`);
-    setState({ view: "home", selectedArcade: null, editingArcade: null });
-  };
-
-  const handleImportBackup = (data: BackupData) => {
-    const newArcades = mergeById(arcades, data.arcades);
-    const newLaps = mergeById(laps, data.laps);
-
-    setArcades(newArcades);
-    setLaps(newLaps);
-    storage.saveArcades(newArcades);
-    storage.saveLaps(newLaps);
-
-    const arcadeWord = data.arcades.length === 1 ? "arcade" : "arcades";
-    const lapWord = data.laps.length === 1 ? "lap" : "laps";
-    toast.success(
-      `Imported ${data.arcades.length} ${arcadeWord} and ${data.laps.length} ${lapWord}`,
-    );
-  };
-
-  const getArcadeLaps = (arcadeId: string) => {
-    return laps.filter((lap) => lap.arcadeId === arcadeId);
-  };
-
-  const getArcadeStats = (arcadeId: string) => {
-    return calculateMachineStats(arcadeId, laps);
   };
 
   return (
@@ -333,11 +241,7 @@ export default function App() {
               </div>
             )}
 
-            <DataBackup
-              arcades={arcades}
-              laps={laps}
-              onImport={handleImportBackup}
-            />
+            <DataBackup />
           </div>
         )}
 

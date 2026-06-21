@@ -1,3 +1,5 @@
+import type { Arcade, Machine } from "../types";
+
 const PINBALL_MAP_API = "https://pinballmap.com/api/v1";
 
 export interface PinballMapLocation {
@@ -27,6 +29,37 @@ export interface PinballMapRegion {
   lat: string;
   lon: string;
 }
+
+/**
+ * Convert a Pinball Map location into an Arcade. Machines without a known name
+ * are dropped; returns null when no usable machines remain.
+ */
+export const locationToArcade = (
+  location: PinballMapLocation,
+  regionName: string,
+): Arcade | null => {
+  const machines: Machine[] = (location.location_machine_xrefs ?? [])
+    .map((xref) => ({
+      id: crypto.randomUUID(),
+      name: xref.name || "Unknown Machine",
+    }))
+    .filter((machine) => machine.name !== "Unknown Machine");
+
+  if (machines.length === 0) return null;
+
+  const address = [location.street, location.city, location.state, location.zip]
+    .filter(Boolean)
+    .join(", ");
+
+  return {
+    id: crypto.randomUUID(),
+    name: location.name,
+    machines,
+    pinballMapId: location.id,
+    pinballMapRegion: regionName,
+    address,
+  };
+};
 
 export const pinballMapAPI = {
   async searchRegions(query: string): Promise<PinballMapRegion[]> {
